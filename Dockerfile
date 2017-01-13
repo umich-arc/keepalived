@@ -7,7 +7,7 @@ ARG VERSION
 LABEL architecture="x86_64"                       \
       build-date="$BUILD_DATE"                    \
       license="MIT"                               \
-      name="arc-ts/keepalived"                    \
+      name="arcts/keepalived"                     \
       summary="Alpine based keepalived container" \
       version="$VERSION"                          \
       vcs-ref="$VCS_REF"                          \

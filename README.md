@@ -1,4 +1,4 @@
-# arc-ts/keepalived
+# arcts/keepalived
 
 A small [Alpine](https://alpinelinux.org/) based Docker container that provides a method of IP high availability via [keepalived](http://www.keepalived.org/) (VRRP failiver). If allowed to auto configure (default behaviour) it will automatically generate a unicast based failover configuration with a minimal amount of user supplied information. For specific information on Keepalived, please see the man page on [keepalived.conf](http://linux.die.net/man/5/keepalived.conf) or the [Keepalived User Guide](http://www.keepalived.org/pdf/UserGuide.pdf).
 
@@ -150,7 +150,7 @@ docker run -d --net=host --cap-add NET_ADMIN \
 -e KEEPALVED_TRACK_INTERFACE_2=eth1          \
 -e KEEPALIVED_VIRTUAL_IPADDRESS_1="10.10.0.3 dev eth0" \
 -e KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_1="172.16.1.20 dev eth1" \
-arc-ts/keepalived
+arcts/keepalived
 ```
 
 ##### Example Backup Run Command
@@ -166,5 +166,5 @@ docker run -d --net=host --cap-add NET_ADMIN \
 -e KEEPALVED_TRACK_INTERFACE_2=eth1          \
 -e KEEPALIVED_VIRTUAL_IPADDRESS_1="10.10.0.3 dev eth0" \
 -e KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_1="172.16.1.20 dev eth1" \
-arc-ts/keepalived
+arcts/keepalived
 ```
