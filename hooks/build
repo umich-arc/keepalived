@@ -6,6 +6,6 @@ vcs_ref=$(git rev-parse --short HEAD)
 
 docker build \
   --build-arg BUILD_DATE="$build_date" \
-  --build-arg VCS_REF="$vcs_ref        \
+  --build-arg VCS_REF="$vcs_ref"       \
   --build-arg VERSION="$version"       \
   -t "$IMAGE_NAME" .
