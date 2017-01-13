@@ -1,0 +1,9 @@
+.kitchen/
+.vagrant/
+vendor/
+*.junit.xml
+*.key
+*.pem
+*.swp
+*.rpm
+*.deb

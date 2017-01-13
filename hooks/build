@@ -1,0 +1,11 @@
+#!/bin/bash
+
+build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+version=$(git describe --tags 2> /dev/null || echo "$SOURCE_BRANCH")
+vcs_ref=$(git rev-parse --short HEAD)
+
+docker build \
+  --build-arg BUILD_DATE="$build_date" \
+  --build-arg VCS_REF="$vcs_ref        \
+  --build-arg VERSION="$version"       \
+  -t "$IMAGE_NAME" .
