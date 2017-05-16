@@ -1,10 +1,6 @@
 #!/bin/bash
 
 config_keepalived() {
-  if [[ ! $KEEPALIVED_VRRP_UNICAST_PEER ]]; then
-    echo "[$(date)][KEEPALIVED] KEEPALIVED_VRRP_UNICAST_PEER not set."
-    return 1
-  fi
   if ! compgen -A variable | grep -q -E "KEEPALIVED_VIRTUAL_IPADDRESS_[0-9]{1,3}"; then
     echo "[$(date)][KEEPALIVED] No KEEPALIVED_VIRTUAL_IPADDRESS_ varibles detected."
     return 1
