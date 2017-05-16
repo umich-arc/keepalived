@@ -19,10 +19,10 @@ config_keepalived() {
   export KEEPALIVED_ADVERT_INT=${KEEPALIVED_ADVERT_INT:-1}
   export KEEPALIVED_AUTH_PASS=${KEEPALIVED_AUTH_PASS:-"pwd$KEEPALIVED_VIRTUAL_ROUTER_ID"}
 
-  if [[ ! $KEEPALIVED_VRRP_UNICAST_BIND ]]; then
+  if [[ ! $KEEPALIVED_UNICAST_SRC_IP ]]; then
     bind_target="$(ip addr show "$KEEPALIVED_INTERFACE" | \
-      grep -m 1 -P -o '(?<=inet )[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
-    export KEEPALIVED_VRRP_UNICAST_BIND="$bind_target"
+      grep -m 1 -E -o 'inet [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | awk '{print $2}')"
+    export KEEPALIVED_UNICAST_SRC_IP="$bind_target"
   fi
 
   echo "vrrp_instance MAIN {" > "$KEEPALIVED_CONF"
