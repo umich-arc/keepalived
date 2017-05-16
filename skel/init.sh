@@ -33,11 +33,16 @@ config_keepalived() {
   # shellcheck disable=SC2129
   echo "  state $KEEPALIVED_STATE" >> "$KEEPALIVED_CONF"
   echo "  interface $KEEPALIVED_INTERFACE" >> "$KEEPALIVED_CONF"
-  echo "  vrrp_unicast_bind $KEEPALIVED_VRRP_UNICAST_BIND" >> "$KEEPALIVED_CONF"
-  echo "  vrrp_unicast_peer $KEEPALIVED_VRRP_UNICAST_PEER" >> "$KEEPALIVED_CONF"
   echo "  virtual_router_id $KEEPALIVED_VIRTUAL_ROUTER_ID" >> "$KEEPALIVED_CONF"
   echo "  priority $KEEPALIVED_PRIORITY" >> "$KEEPALIVED_CONF"
   echo "  advert_int $KEEPALIVED_ADVERT_INT" >> "$KEEPALIVED_CONF"
+  echo "  unicast_src_ip $KEEPALIVED_UNICAST_SRC_IP" >> "$KEEPALIVED_CONF"
+  echo "  unicast_peer {" >> "$KEEPALIVED_CONF"
+  for peer in $(compgen -A variable | grep -E "KEEPALIVED_UNICAST_PEER_[0-9]{1,3}"); do
+    echo "    ${!peer}" >> "$KEEPALIVED_CONF"
+  done
+  # shellcheck disable=SC2129
+  echo "  }" >> "$KEEPALIVED_CONF"
   echo "  authentication {" >> "$KEEPALIVED_CONF"
   echo "    auth_type PASS" >> "$KEEPALIVED_CONF"
   echo "    auth_pass $KEEPALIVED_AUTH_PASS" >> "$KEEPALIVED_CONF"

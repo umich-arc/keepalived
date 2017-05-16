@@ -48,11 +48,12 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 |            `KEEPALIVED_PRIORITY`            |                `200`               |
 |              `KEEPALIVED_STATE`             |              `MASTER`              |
 |       `KEEPALIVED_TRACK_INTERFACE_###`      |                                    |
+|         `KEEPALIVED_UNICAST_SRC_IP`         |                                    |
+|        `KEEPALIVED_UNICAST_PEER_###`        |                                    |
 |      `KEEPALIVED_VIRTUAL_IPADDRESS_###`     |                                    |
 | `KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_###` |                                    |
 |        `KEEPALIVED_VIRTUAL_ROUTER_ID`       |                 `1`                |
-|        `KEEPALIVED_VRRP_UNICAST_BIND`       |                                    |
-|        `KEEPALIVED_VRRP_UNICAST_PEER`       |                                    |
+
 
 * `KEEPALIVED_ADVERT_INT` - The VRRP advertisement interval (in seconds).
 
@@ -66,6 +67,10 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 
 * `KEEPALIVED_TRACK_INTERFACE_###` - An interface that's state should be monitored (e.g. eth0). More than one can be supplied as long as the variable name ends in a number from 0-999.
 
+* `KEEPALIVED_UNICAST_SRC_IP` - The IP on the host that the keepalived daemon should bind to. **Note:** If not specified, it will be the first IP bound to the interface specified in `KEEPALIVED_INTERFACE`.
+
+* `KEEPALIVED_UNICAST_PEER_###` - An IP of a peer participating in the VRRP group. More tha one can be supplied as long as the variable name ends in a number from 0-999.
+
 * `KEEPALIVED_VIRTUAL_IPADDRESS_###` - An instance of an address that will be monitored and failed over from one host to another. These should be a quoted string in the form of: `<IPADDRESS>/<MASK> brd <BROADCAST_IP> dev <DEVICE> scope <SCOPE> label <LABEL>` At a minimum the ip address, mask and device should be specified e.g. `KEEPALIVED_VIRTUAL_IPADDRESS_1="10.10.0.2/24 dev eth0"`. More than one can be supplied as long as the variable name ends in a number from 0-999. **Note:** Keepalived has a hard limit of **20** addresses that can be monitored. More can be failed over with the monitored addresses via `KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_###`.
 
 
@@ -73,9 +78,6 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 
 * `KEEPALIVED_VIRTUAL_ROUTER_ID` - A unique number from 0 to 255 that should identify the VRRP group. Master and Backup should have the same value. Multiple instances of keepalived can be run on the same host, but each pair **MUST** have a unique virtual router id.
 
-* `KEEPALIVED_VRRP_UNICAST_BIND` - The IP on the host that the keepalived daemon should bind to. **Note:** If not specified, it will be the first IP bound to the interface specified in `$KEEPALIVED_INTERFACE`.
-
-* `KEEPALIVED_VRRP_UNICAST_PEER` - The IP of the peer in the VRRP group.
 
 
 ### Example Keepalived Configs
@@ -85,11 +87,13 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 vrrp_instance MAIN {
   state MASTER
   interface eth0
-  vrrp_unicast_bind 10.10.0.21
-  vrrp_unicast_peer 10.10.0.22
   virtual_router_id 2
   priority 200
   advert_int 1
+  unicast_src_ip 10.10.0.21
+  unicast_peer {
+    10.10.0.22
+  }
   authentication {
     auth_type PASS
     auth_pass pwd1
@@ -112,11 +116,13 @@ vrrp_instance MAIN {
 vrrp_instance MAIN {
   state BACKUP
   interface eth0
-  vrrp_unicast_bind 10.10.0.22
-  vrrp_unicast_peer 10.10.0.21
   virtual_router_id 2
   priority 100
   advert_int 1
+  unicast_src_ip 10.10.0.22
+  unicast_peer {
+    10.10.0.21
+  }
   authentication {
     auth_type PASS
     auth_pass pwd1
