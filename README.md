@@ -1,6 +1,8 @@
 # arcts/keepalived
 
-A small [Alpine](https://alpinelinux.org/) based Docker container that provides a method of IP high availability via [keepalived](http://www.keepalived.org/) (VRRP failiver). If allowed to auto configure (default behaviour) it will automatically generate a unicast based failover configuration with a minimal amount of user supplied information. For specific information on Keepalived, please see the man page on [keepalived.conf](http://linux.die.net/man/5/keepalived.conf) or the [Keepalived User Guide](http://www.keepalived.org/pdf/UserGuide.pdf).
+A small [Alpine](https://alpinelinux.org/) based Docker container that provides a method of IP high availability via [keepalived](http://www.keepalived.org/) (VRRP failover), and optional Kubernetes API Server monitoring. If allowed to auto configure (default behaviour) it will automatically generate a unicast based failover configuration with a minimal amount of user supplied information.
+
+For specific information on Keepalived, please see the man page on [keepalived.conf](http://linux.die.net/man/5/keepalived.conf) or the [Keepalived User Guide](http://www.keepalived.org/pdf/UserGuide.pdf).
 
 
 ## Index
@@ -8,7 +10,9 @@ A small [Alpine](https://alpinelinux.org/) based Docker container that provides 
 * [Configuration](#configuration)
   * [Execution Control](#execution-control)
   * [Autoconfiguration Options](#autoconfiguration-options)
-  * [Example keepalived configs](#example-keepalived-config)
+  * [Kubernetes Options](#kubernetes-options)
+* [Suggested Kubernetes Settings](#suggested-kubernetes-settings)
+* [Example keepalived Configs](#example-keepalived-config)
 * [Example Run Commands](#example-run-commands)
 
 
@@ -53,7 +57,7 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 |      `KEEPALIVED_VIRTUAL_IPADDRESS_###`     |                                    |
 | `KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_###` |                                    |
 |        `KEEPALIVED_VIRTUAL_ROUTER_ID`       |                 `1`                |
-
+|      `KEEPALIVED_KUBE_APISERVER_CHECK`      |               `false`              |
 
 * `KEEPALIVED_ADVERT_INT` - The VRRP advertisement interval (in seconds).
 
@@ -78,7 +82,54 @@ In addition to enabling the nonlocal binds, the container must be run with both 
 
 * `KEEPALIVED_VIRTUAL_ROUTER_ID` - A unique number from 0 to 255 that should identify the VRRP group. Master and Backup should have the same value. Multiple instances of keepalived can be run on the same host, but each pair **MUST** have a unique virtual router id.
 
+* `KEEPALIVED_KUBE_APISERVER_CHECK` -  If enabled it configures a simple check script for the Kubernetes API-Server. For more information on this feature, please see the [Kubernetes Options](#kubernetes-options) section.
 
+
+### Kubernetes Options
+
+
+|          **Variable**         |                   **Default**                  |
+|:-----------------------------:|:----------------------------------------------:|
+|    `KUBE_APISERVER_ADDRESS`   | parsed from `KEEPALIVED_VIRTUAL_IPADDRESS_###` |
+|     `KUBE_APISERVER_PORT`     |                     `6443`                     |
+| `KUBE_APISERVER_CHK_INTERVAL` |                       `3`                      |
+|   `KUBE_APISERVER_CHK_FALL`   |                      `10`                      |
+|   `KUBE_APISERVER_CHK_RISE`   |                       `2`                      |
+|  `KUBE_APISERVER_CHK_WEIGHT`  |                      `-50`                     |
+
+
+
+* `KUBE_APISERVER_ADDRESS` - The Virtual IP being used for the Kube API Server. If none is supplied, it is assumed to be the lowest numbered entry in the `KEEPALIVED_VIRTUAL_IPADDRESS_###` variables.
+
+* `KUBE_APISERVER_PORT` - The port to use in conjunction with the `KUBE_APISERVER_ADDRESS`.
+
+* `KUBE_APISERVER_CHK_INTERVAL` - The interval in seconds between calling the script.
+
+* `KUBE_APISERVER_CHK_FALL` - The number of consecutive non-zero script exits before setting the state to `FAULT`.
+
+* `KUBE_APISERVER_CHK_RISE` - The number of consecutive zero script exits before exiting the `FAULT` state.
+
+* `KUBE_APISERVER_CHK_WEIGHT` - The weight to apply to the priority when the service enters the `FAULT` state.
+
+
+
+---
+
+### Suggested Kubernetes Settings
+
+Assuming there are three nodes running the kube-apiserver, you cannot rely on setting just the`KEEPALIVED_STATE` parameter to manage failover across the nodes.
+
+To manage kube-apiserver failover, enable the healthcheck option with `KEEPALIVED_KUBE_APISERVER_CHECK`, and set the `KEEPALIVED_PRIORITY` manually for the three instances.
+
+| **Node** | **Priority** |
+|:--------:|:------------:|
+|  node-01 |      200     |
+|  node-02 |      190     |
+|  node-03 |      180     |
+
+With the default weight of `-50`, if `node-01` has an issue, it's priority will drop to `150` and allow `node-02` to take over, the same is repeated if `node-02` has a failure dropping it's weight to `140` and `node-03` takes over.
+
+Recovery occurs in the same order with the system with the highest priority being promoted to master.
 
 ### Example Keepalived Configs
 
@@ -174,3 +225,4 @@ docker run -d --net=host --cap-add NET_ADMIN \
 -e KEEPALIVED_VIRTUAL_IPADDRESS_EXCLUDED_1="172.16.1.20/24 dev eth1" \
 arcts/keepalived
 ```
+
