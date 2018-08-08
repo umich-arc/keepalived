@@ -121,6 +121,7 @@ init_vars() {
   KEEPALIVED_DEBUG=${KEEPALIVED_DEBUG:-false}
   KEEPALIVED_KUBE_APISERVER_CHECK=${KEEPALIVED_KUBE_APISERVER_CHECK:-false}
   KEEPALIVED_CONF=${KEEPALIVED_CONF:-/etc/keepalived/keepalived.conf}
+  KEEPALIVED_VAR_RUN=${KEEPALIVED_VAR_RUN:-/var/run/keepalived}
   if [[ ${KEEPALIVED_DEBUG,,} == 'true' ]]; then
     local kd_cmd="/usr/sbin/keepalived -n -l -D -f $KEEPALIVED_CONF"
   else
@@ -134,6 +135,7 @@ main() {
   if [[ ${KEEPALIVED_AUTOCONF,,} == 'true' ]]; then
     config_keepalived
   fi
+  rm -fr $KEEPALIVED_VAR_RUN
   # shellcheck disable=SC2086
   exec $KEEPALIVED_CMD
 }
