@@ -127,7 +127,7 @@ init_vars() {
   else
     local kd_cmd="/usr/sbin/keepalived -n -l -f $KEEPALIVED_CONF"
   fi
-  KEEPALIVED_CMD=${SERVICE_KEEPALIVED_CMD:-"$kd_cmd"}
+  KEEPALIVED_CMD=${KEEPALIVED_CMD:-"$kd_cmd"}
 }
 
 main() {
@@ -135,7 +135,7 @@ main() {
   if [[ ${KEEPALIVED_AUTOCONF,,} == 'true' ]]; then
     config_keepalived
   fi
-  rm -fr $KEEPALIVED_VAR_RUN
+  rm -fr "$KEEPALIVED_VAR_RUN"
   # shellcheck disable=SC2086
   exec $KEEPALIVED_CMD
 }
