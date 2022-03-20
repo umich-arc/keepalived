@@ -39,7 +39,7 @@ jobs:
       - name: Define args variables
         run: |
           echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "${GITHUB_ENV}"
-          echo "version=$(git describe --tags 2> /dev/null)" >> "${GITHUB_ENV}"
+          echo "version=$(git describe --tags 2> /dev/null || echo \"${SOURCE_BRANCH}\")" >> "${GITHUB_ENV}"
           echo "vcs_ref=$(git rev-parse --short HEAD)" >> "${GITHUB_ENV}"
 
       - name: Build and push Docker image
