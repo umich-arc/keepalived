@@ -4,6 +4,9 @@ name: Update image by cronjob
 on:
   schedule:
   - cron: '0 0 * * 0'
+  push:
+    branches:
+    - master
 
 env:
   REGISTRY: ghcr.io
